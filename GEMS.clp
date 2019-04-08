@@ -1,4 +1,6 @@
-(defrule testerino
+(defrule includeFiles
     =>
-    (printout t "testerino" crlf)
+    (load "minerals.clp")
+    (load "menu.clp")
+    (load "expert.clp")
 )
