@@ -26,7 +26,7 @@
     (retract ?f1)
     (printout t "focusing expert" crlf)
     (focus EXPERT)
-    ; (assert (module menu))
+    (assert (module menu))
 )
 
 
