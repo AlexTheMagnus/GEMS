@@ -26,7 +26,7 @@
     (retract ?f1)
     (printout t "focusing expert" crlf)
     (focus EXPERT)
-    (assert (module menu))
+    ; (assert (module menu))
 )
 
 
@@ -35,6 +35,17 @@
 ;###############################################################################
 (defmodule MINERALS (export ?ALL))
 
+(deftemplate MINERALS::mineral
+    (slot name (type SYMBOL))
+    (multislot color (type SYMBOL))
+    (slot hardness (type NUMBER) (range 0 10))
+    (slot density (type NUMBER))
+    (multislot diaphaneity (allowed-symbols transparent translucent opaque))
+)
+
+(deffacts MINERALS::minerals
+    (mineral (name emerald) (color green) (hardness 7.5) (density 2.7) (diaphaneity transparent translucent))
+)
 
 
 
@@ -77,4 +88,10 @@
 ;###############################################################################
 ;############################  EXPERT MODULE  ##################################
 ;###############################################################################
-(defmodule EXPERT (export ?ALL))
+(defmodule EXPERT (import MINERALS ?ALL) (export ?ALL))
+
+(defrule test
+    (mineral (name emerald) (color green) (hardness 7.5) (density 2.7) (diaphaneity transparent translucent))
+    =>
+    (printout t "hay munerales!" crlf)
+)
