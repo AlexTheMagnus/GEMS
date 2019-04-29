@@ -39,8 +39,8 @@
 (deftemplate MINERALS::mineral
     (slot name (type SYMBOL))
     (multislot color (type SYMBOL))
-    (slot hardness (type NUMBER) (default ?DERIVE NONE) (range 0 10))
-    (slot density (type NUMBER) (default ?DERIVE NONE))
+    (slot hardness (type NUMBER) (range -1 10) (default -1))
+    (slot density (type NUMBER) (default -1))
     (multislot diaphaneity (allowed-symbols transparent translucent opaque))
     (slot streak (type SYMBOL))
 )
@@ -65,14 +65,15 @@
 
 
 
-
 ;###############################################################################
 ;#############################  MENU MODULE  ###################################
 ;###############################################################################
 (defmodule MENU (import MAIN ?ALL) (import MINERALS ?ALL) (export ?ALL))
 
+(defglobal ?*response* = nil)
+
 (deffacts MINERALS::addTarget
-    (mineral (name target))
+    (mineral (name target)) 
 )
 
 (deffunction MENU::printMenu (?option)
@@ -116,12 +117,40 @@
     )
 )
 
+;###############################################################################
+
+(deffunction isColor(?color)
+    (if (eq ?color black) then (return true))
+    (if (eq ?color blue) then (return true))
+    (if (eq ?color brown) then (return true))
+    (if (eq ?color colorless) then (return true))
+    (if (eq ?color green) then (return true))
+    (if (eq ?color pink) then (return true))
+    (if (eq ?color red) then (return true))
+    (if (eq ?color violet) then (return true))
+    (if (eq ?color white) then (return true))
+    (if (eq ?color yellow) then (return true))
+    (return false)
+)
+
+;###############################################################################
+
 (deffunction MENU::getColorFromUser ()
-    (return (read))
+    (bind ?*response* (read))
+    (if (neq (isColor ?*response*) true) then
+        (printout t "invalid color, please, type a correct color: ")
+        (return (getColorFromUser))
+    )
+    (return  ?*response*)
 )
 
 (deffunction MENU::getDensityFromUser ()
-    (return (read))
+    (bind ?*response* (read))
+    (if (neq (isColor ?*response*) true) then
+        (printout t "invalid color, please, type a correct color: ")
+        (return (getColorFromUser))
+    )
+    (return  ?*response*)
 )
 
 (deffunction MENU::getHardnessFromUser ()
@@ -140,7 +169,7 @@
     =>
     (retract ?f1)
     (printMenu 0)
-    
+
     (assert
         (menu option (read))
     )
@@ -220,7 +249,7 @@
 (defmodule EXPERT (import MINERALS ?ALL) (export ?ALL))
 
 (defrule test
-    (mineral (name target))
+    ?target<-(mineral (name target))
     =>
     (facts)
 )
