@@ -364,6 +364,56 @@
 
 ;###############################################################################
 
+(defrule EXPERT::showFilteringBy
+    ?target<-(mineral
+                (name target)
+                (color ?targetColor)
+                (hardness ?targetHardness)
+                (density ?targetDensity)
+                (diaphaneity ?targetDiaphaneity)
+                (streak ?targetStreak)
+             )
+    =>
+    (printout t "" crlf)
+    (printout t "filtering by:" crlf)
+    (if (neq ?targetColor notDefined) then
+        (printout t "   color: "?targetColor crlf)
+    )
+    (if (neq ?targetHardness -1) then
+        (printout t "   hardness: "?targetHardness crlf)
+    )
+    (if (neq ?targetDensity -1) then
+        (printout t "   density: "?targetDensity crlf)
+    )
+    (if (neq ?targetDiaphaneity notDefined) then
+        (printout t "   diaphaneity: "?targetDiaphaneity crlf)
+    )
+    (if (neq ?targetStreak notDefined) then
+        (printout t "   streak: "?targetStreak crlf)
+    )
+    (if (and
+            (and
+                (eq ?targetColor notDefined)
+                (eq ?targetHardness -1)
+            )
+            (and
+                (eq ?targetDensity -1)
+                (and
+                    (eq ?targetDiaphaneity notDefined)
+                    (eq ?targetStreak notDefined)
+                )
+            )
+        )
+        then
+        (printout t "   nothing."crlf)
+    )
+    
+    (printout t "" crlf)
+)
+
+
+
+
 (defrule EXPERT::testMineral
     ?target<-(mineral
                 (name target)
