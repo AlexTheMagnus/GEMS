@@ -30,6 +30,7 @@
 )
 
 
+
 ;###############################################################################
 ;###########################  MINERALS MODULE  #################################
 ;###############################################################################
@@ -38,8 +39,8 @@
 (deftemplate MINERALS::mineral
     (slot name (type SYMBOL))
     (multislot color (type SYMBOL))
-    (slot hardness (type NUMBER) (range 0 10))
-    (slot density (type NUMBER))
+    (slot hardness (type NUMBER) (range -1 10) (default -1))
+    (slot density (type NUMBER) (default -1))
     (multislot diaphaneity (allowed-symbols transparent translucent opaque))
     (slot streak (type SYMBOL))
 )
@@ -80,35 +81,226 @@
 
 
 
-
 ;###############################################################################
 ;#############################  MENU MODULE  ###################################
 ;###############################################################################
-(defmodule MENU (import MAIN ?ALL) (export ?ALL))
+(defmodule MENU (import MAIN ?ALL) (import MINERALS ?ALL) (export ?ALL))
+
+(defglobal ?*response* = nil)
+
+(deffacts MINERALS::addTarget
+    (mineral (name target)) 
+)
+
+(deffunction MENU::printMenu (?option)
+    (printout t crlf)
+
+    (if (eq ?option 0)  then
+        (printout t "   1. Add restriction" crlf)
+        (printout t "   2. Filter minerals" crlf)
+        (printout t "   0. Exit" crlf)
+    )
+    (if (eq ?option 1) then
+        (printout t "   1. Specify color" crlf)
+        (printout t "   2. Specify hardness" crlf)
+        (printout t "   3. Specify density" crlf)
+        (printout t "   4. Specify diaphaneity" crlf)
+        (printout t "   5. Specify streak" crlf)
+    )
+    (printout t crlf)
+    (printout t "your option: ")
+)
+
+(deffunction MENU::printMenuRestriction (?option)
+    (printout t crlf)
+
+    (if (eq ?option color) then
+        (printout t "Specify the color of the mineral: ")
+    )
+    (if (eq ?option hardness) then
+        (printout t "Specify the hardness of the mineral [0-10]: ")
+    )
+    (if (eq ?option density) then
+        (printout t "Specify the density of the mineral: ")
+    )
+    (if (eq ?option diaphaneity) then
+        (printout t "Specify the diaphaneity of the mineral" crlf)
+        (printout t crlf)
+        (printout t "   1. transparent" crlf)
+        (printout t "   2. translucent" crlf)
+        (printout t "   3. opaque" crlf)
+        (printout t crlf)
+        (printout t "your option: ")
+    )
+    (if (eq ?option streak) then
+        (printout t "Specify the color of the streak: ")
+    )
+)
+
+;###############################################################################
+
+(deffunction isColor(?color)
+    (if (eq ?color black) then (return true))
+    (if (eq ?color blue) then (return true))
+    (if (eq ?color brown) then (return true))
+    (if (eq ?color colorless) then (return true))
+    (if (eq ?color green) then (return true))
+    (if (eq ?color pink) then (return true))
+    (if (eq ?color red) then (return true))
+    (if (eq ?color violet) then (return true))
+    (if (eq ?color white) then (return true))
+    (if (eq ?color yellow) then (return true))
+    (return false)
+)
+
+;###############################################################################
+
+(deffunction MENU::getColorFromUser ()
+    (bind ?*response* (read))
+    (if (neq (isColor ?*response*) true) then
+        (printout t "invalid color, please, type a correct color: ")
+        (return (getColorFromUser))
+    )
+    (return  ?*response*)
+)
+
+(deffunction MENU::getDensityFromUser ()
+    (bind ?*response* (read))
+    (if (< 0 ?*response*) then
+        (return  ?*response*)
+    )
+    (printout t "invalid density, please, type a correct density: ")
+    (return (getDensityFromUser))
+)
+
+(deffunction MENU::getHardnessFromUser ()
+    (bind ?*response* (read))
+    (if (and
+            (<= 0 ?*response*)
+            (>= 10 ?*response*)
+        ) then
+        (return  ?*response*)
+    )
+    (printout t "invalid hardness, please, type a correct hardness [0-10]: ")
+    (return (getHardnessFromUser))
+)
+
+(deffunction MENU::getDiaphaneityFromUser ()
+    (bind ?*response* (read))
+    (if (and
+            (<= 1 ?*response*)
+            (>= 3 ?*response*)
+        ) then
+        (if (eq ?*response* 1) then (return transparent))
+        (if (eq ?*response* 2) then (return translucent))
+        (if (eq ?*response* 3) then (return opaque))
+    )
+    (printout t "invalid option, please, type a correct diaphaneity: ")
+    (return (getDiaphaneityFromUser))
+)
+
+
+(deffunction MENU::getStreakFromUser ()
+    (bind ?*response* (read))
+    (if (neq (isColor ?*response*) true) then
+        (printout t "invalid color, please, type a correct streak color: ")
+        (return (getStreakFromUser))
+    )
+    (return  ?*response*)
+)
+
+
+;###############################################################################
+
 
 (defrule MENU::mainMenu
     ?f1<-(menu mainMenu)
     =>
     (retract ?f1)
-    (printout t "1 añadir restricción" crlf)
-    (printout t "cualquier otra cosa será interpretado como salir" crlf)
-    (printout t "tu opcion: ")
+    (printMenu 0)
+
     (assert
         (menu option (read))
     )
 )
 
-(defrule MENU::addRestricion
-    ?f1<-(menu option 1)
+(defrule MENU::exit
+    ?f1<-(menu option 0)
     =>
     (retract ?f1)
-    (printout t "menu para añadir restriccion" crlf)
-    (return)
+    (exit)
 )
 
 
+(defrule MENU::menuAddRestriction
+    ?f1<-(menu option 1)
+    =>
+    (retract ?f1)
+    (printMenu 1)
+    (assert
+        (menu AddRestriction (read))
+    )
+)
 
 
+;###############################################################################
+
+
+(defrule MENU::AddRestrictionColor
+    ?f1<-(menu AddRestriction 1)
+    ?target<-(mineral (name target))
+    =>
+    (retract ?f1)
+    (printMenuRestriction color)
+    (modify ?target
+        (color (getColorFromUser))
+    )
+)
+
+(defrule MENU::AddRestrictionHardness
+    ?f1<-(menu AddRestriction 2)
+    ?target<-(mineral (name target))
+    =>
+    (retract ?f1)
+    (printMenuRestriction hardness)
+    (modify ?target
+        (hardness (getHardnessFromUser))
+    )
+)
+
+(defrule MENU::AddRestrictionDensity
+    ?f1<-(menu AddRestriction 3)
+    ?target<-(mineral (name target))
+    =>
+    (retract ?f1)
+    (printMenuRestriction density)
+    (modify ?target
+        (density (getDensityFromUser))
+    )
+)
+
+
+(defrule MENU::AddRestrictionDiaphaneity
+    ?f1<-(menu AddRestriction 4)
+    ?target<-(mineral (name target))
+    =>
+    (retract ?f1)
+    (printMenuRestriction diaphaneity)
+    (modify ?target
+        (diaphaneity (getDiaphaneityFromUser))
+    )
+)
+
+(defrule MENU::AddRestrictionStreak
+    ?f1<-(menu AddRestriction 5)
+    ?target<-(mineral (name target))
+    =>
+    (retract ?f1)
+    (printMenuRestriction streak)
+    (modify ?target
+        (streak (getStreakFromUser))
+    )
+)
 
 
 
@@ -118,7 +310,7 @@
 (defmodule EXPERT (import MINERALS ?ALL) (export ?ALL))
 
 (defrule test
-    (mineral (name emerald) (color green) (hardness 7.5) (density 2.7) (diaphaneity transparent translucent))
+    ?target<-(mineral (name target))
     =>
-    (printout t "hay munerales!" crlf)
+    (facts)
 )
