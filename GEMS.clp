@@ -16,16 +16,6 @@
     (printout t "focusing menu" crlf)
     (assert (menu mainMenu))
     (focus MENU)
-    (assert (module expert))
-)
-
-
-(defrule MAIN::PassToModuleExpert
-    ?f1<-(module expert)
-    =>
-    (retract ?f1)
-    (printout t "focusing expert" crlf)
-    (focus EXPERT)
     (assert (module menu))
 )
 
@@ -37,12 +27,12 @@
 (defmodule MINERALS (export ?ALL))
 
 (deftemplate MINERALS::mineral
-    (slot name (type SYMBOL))
-    (multislot color (type SYMBOL))
+    (slot name (type SYMBOL) (default notDefined))
+    (multislot color (type SYMBOL) (default notDefined))
     (slot hardness (type NUMBER) (range -1 10) (default -1))
     (slot density (type NUMBER) (default -1))
-    (multislot diaphaneity (allowed-symbols transparent translucent opaque))
-    (slot streak (type SYMBOL))
+    (multislot diaphaneity (allowed-symbols transparent translucent opaque notDefined) (default notDefined))
+    (slot streak (type SYMBOL) (default notDefined))
 )
 ;Implementar busqueda por dureza y densidad con cota de error de 0.1
 
@@ -243,6 +233,15 @@
 )
 
 
+(defrule MENU::menuExpert
+    ?f1<-(menu option 2)
+    =>
+    (retract ?f1)
+    (printout t "focusing expert" crlf)
+    (focus EXPERT)
+)
+
+
 ;###############################################################################
 
 
@@ -309,8 +308,85 @@
 ;###############################################################################
 (defmodule EXPERT (import MINERALS ?ALL) (export ?ALL))
 
-(defrule test
-    ?target<-(mineral (name target))
+(defglobal ?*hardnessError* = 1)
+(defglobal ?*densityError* = 1)
+
+;###############################################################################
+
+(deffunction EXPERT::isInArray (?element $?vector)
+    (if (eq 0 (length$ $?vector)) then
+        (return false)
+    )
+    (if (eq ?element (nth$ 1 $?vector)) then
+        (return true)
+    )
+    (return (isInArray ?element (rest$ $?vector)))
+)
+
+;###############################################################################
+
+(deffunction EXPERT::isSameColor (?targetColor $?color)
+    ; target hardness has its default value, not filtering by this field
+    (if (eq ?targetColor notDefined) then (return true))
+    (return (isInArray ?targetColor $?color))
+)
+
+(deffunction EXPERT::isSameHardness (?targetHardness ?hardness)
+    ; target hardness has its default value, not filtering by this field
+    (if (eq ?targetHardness -1) then (return true))
+    
+    (if (> ?*hardnessError* (abs (- ?targetHardness ?hardness)))
+        then (return true)
+    )
+    (return false)
+)
+
+(deffunction EXPERT::isSameDensity (?targetDensity ?density)
+    ; target density has its default value, not filtering by this field
+    (if (eq ?targetDensity -1) then (return true))
+    (if (> ?*densityError* (abs (- ?targetDensity ?density)))
+        then (return true)
+    )
+    (return false)
+)
+
+(deffunction EXPERT::isSameDiaphaneity (?targetDiaphaneity $?diaphaneity)
+    ; target diaphaneity has its default value, not filtering by this field
+    (if (eq ?targetDiaphaneity notDefined) then (return true))
+    (return (isInArray ?targetDiaphaneity $?diaphaneity))
+)
+
+(deffunction EXPERT::isSameStreak (?targetStreak $?streak)
+    ; target streak has its default value, not filtering by this field
+    (if (eq ?targetStreak notDefined) then (return true))
+    (return (isInArray ?targetStreak $?streak))
+)
+
+;###############################################################################
+
+(defrule EXPERT::testMineral
+    ?target<-(mineral
+                (name target)
+                (color ?targetColor)
+                (hardness ?targetHardness)
+                (density ?targetDensity)
+                (diaphaneity ?targetDiaphaneity)
+                (streak ?targetStreak)
+             )
+    ?mineral<-(mineral
+                (name ?name)
+                (color $?color)
+                (hardness ?hardness)
+                (density ?density)
+                (diaphaneity $?diaphaneity)
+                (streak ?streak)
+              )
+    (test (neq ?name target))
+    (test (eq true (isSameColor ?targetColor $?color)))
+    (test (eq true (isSameHardness ?targetHardness ?hardness)))
+    (test (eq true (isSameDensity ?targetDensity ?density)))
+    (test (eq true (isSameDiaphaneity ?targetDiaphaneity $?diaphaneity)))
+    (test (eq true (isSameStreak ?targetStreak ?streak)))
     =>
-    (facts)
+    (printout t "match with "?name crlf)
 )
