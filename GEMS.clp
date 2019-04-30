@@ -89,6 +89,7 @@
         (printout t "   2. Specify hardness" crlf)
         (printout t "   3. Specify density" crlf)
         (printout t "   4. Specify diaphaneity" crlf)
+        (printout t "   5. Specify streak" crlf)
     )
     (printout t crlf)
     (printout t "your option: ")
@@ -97,7 +98,7 @@
 (deffunction MENU::printMenuRestriction (?option)
     (printout t crlf)
 
-    (if (eq ?option color)  then
+    (if (eq ?option color) then
         (printout t "Specify the color of the mineral: ")
     )
     (if (eq ?option hardness) then
@@ -114,6 +115,9 @@
         (printout t "   3. opaque" crlf)
         (printout t crlf)
         (printout t "your option: ")
+    )
+    (if (eq ?option streak) then
+        (printout t "Specify the color of the streak: ")
     )
 )
 
@@ -178,6 +182,17 @@
     (printout t "invalid option, please, type a correct diaphaneity: ")
     (return (getDiaphaneityFromUser))
 )
+
+
+(deffunction MENU::getStreakFromUser ()
+    (bind ?*response* (read))
+    (if (neq (isColor ?*response*) true) then
+        (printout t "invalid color, please, type a correct streak color: ")
+        (return (getStreakFromUser))
+    )
+    (return  ?*response*)
+)
+
 
 ;###############################################################################
 
@@ -259,6 +274,18 @@
         (diaphaneity (getDiaphaneityFromUser))
     )
 )
+
+(defrule MENU::AddRestrictionStreak
+    ?f1<-(menu AddRestriction 5)
+    ?target<-(mineral (name target))
+    =>
+    (retract ?f1)
+    (printMenuRestriction streak)
+    (modify ?target
+        (streak (getStreakFromUser))
+    )
+)
+
 
 
 ;###############################################################################
