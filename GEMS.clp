@@ -146,19 +146,37 @@
 
 (deffunction MENU::getDensityFromUser ()
     (bind ?*response* (read))
-    (if (neq (isColor ?*response*) true) then
-        (printout t "invalid color, please, type a correct color: ")
-        (return (getColorFromUser))
+    (if (< 0 ?*response*) then
+        (return  ?*response*)
     )
-    (return  ?*response*)
+    (printout t "invalid density, please, type a correct density: ")
+    (return (getDensityFromUser))
 )
 
 (deffunction MENU::getHardnessFromUser ()
-    (return (read))
+    (bind ?*response* (read))
+    (if (and
+            (<= 0 ?*response*)
+            (>= 10 ?*response*)
+        ) then
+        (return  ?*response*)
+    )
+    (printout t "invalid hardness, please, type a correct hardness [0-10]: ")
+    (return (getHardnessFromUser))
 )
 
 (deffunction MENU::getDiaphaneityFromUser ()
-    (return (read))
+    (bind ?*response* (read))
+    (if (and
+            (<= 1 ?*response*)
+            (>= 3 ?*response*)
+        ) then
+        (if (eq ?*response* 1) then (return transparent))
+        (if (eq ?*response* 2) then (return translucent))
+        (if (eq ?*response* 3) then (return opaque))
+    )
+    (printout t "invalid option, please, type a correct diaphaneity: ")
+    (return (getDiaphaneityFromUser))
 )
 
 ;###############################################################################
@@ -213,7 +231,7 @@
     ?target<-(mineral (name target))
     =>
     (retract ?f1)
-    (printMenuRestriction color)
+    (printMenuRestriction hardness)
     (modify ?target
         (hardness (getHardnessFromUser))
     )
@@ -224,9 +242,9 @@
     ?target<-(mineral (name target))
     =>
     (retract ?f1)
-    (printMenuRestriction color)
+    (printMenuRestriction density)
     (modify ?target
-        (hardness (getDensityFromUser))
+        (density (getDensityFromUser))
     )
 )
 
@@ -238,7 +256,7 @@
     (retract ?f1)
     (printMenuRestriction diaphaneity)
     (modify ?target
-        (hardness (getDiaphaneityFromUser))
+        (diaphaneity (getDiaphaneityFromUser))
     )
 )
 
