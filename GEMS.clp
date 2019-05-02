@@ -308,8 +308,8 @@
 ;###############################################################################
 (defmodule EXPERT (import MINERALS ?ALL) (export ?ALL))
 
-(defglobal ?*hardnessError* = 1)
-(defglobal ?*densityError* = 1)
+(defglobal ?*hardnessError* = 0.3)
+(defglobal ?*densityError* = 0.1)
 
 ;###############################################################################
 
