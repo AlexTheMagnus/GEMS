@@ -363,12 +363,14 @@
 
 ;###############################################################################
 
+; checks if the target color is tha same as the color of the mineral
 (deffunction EXPERT::isSameColor (?targetColor $?color)
     ; target hardness has its default value, not filtering by this field
     (if (eq ?targetColor notDefined) then (return true))
     (return (isInArray ?targetColor $?color))
 )
 
+; checks if the target hardness is tha same as the hardness of the mineral
 (deffunction EXPERT::isSameHardness (?targetHardness ?hardness)
     ; target hardness has its default value, not filtering by this field
     (if (eq ?targetHardness -1) then (return true))
@@ -379,6 +381,7 @@
     (return false)
 )
 
+; checks if the target density is tha same as the density of the mineral
 (deffunction EXPERT::isSameDensity (?targetDensity ?density)
     ; target density has its default value, not filtering by this field
     (if (eq ?targetDensity -1) then (return true))
@@ -388,12 +391,14 @@
     (return false)
 )
 
+; checks if the target diaphaneity is tha same as the diaphaneity of the mineral
 (deffunction EXPERT::isSameDiaphaneity (?targetDiaphaneity $?diaphaneity)
     ; target diaphaneity has its default value, not filtering by this field
     (if (eq ?targetDiaphaneity notDefined) then (return true))
     (return (isInArray ?targetDiaphaneity $?diaphaneity))
 )
 
+; checks if the target streak is tha same as the streak of the mineral
 (deffunction EXPERT::isSameStreak (?targetStreak $?streak)
     ; target streak has its default value, not filtering by this field
     (if (eq ?targetStreak notDefined) then (return true))
@@ -402,7 +407,7 @@
 
 ;###############################################################################
 
-
+; show what the expert is filtering by
 (defrule EXPERT::showFilteringBy
     ?target<-(mineral
                 (name target)
@@ -452,7 +457,7 @@
 
 
 
-
+; test if a mineral matches the target
 (defrule EXPERT::testMineral
     ?target<-(mineral
                 (name target)
