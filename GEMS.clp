@@ -1,6 +1,8 @@
 ;###############################################################################
 ;#############################  MAIN MODULE  ###################################
 ;###############################################################################
+; the main module is responsable for launching the meny untill the user exits
+; the programm.
 (defmodule MAIN (export ?ALL))
 
 
@@ -8,7 +10,7 @@
     (module menu)
 )
 
-
+; launch the menu again
 (defrule MAIN::PassToModuleMenu
     ?f1<-(module menu)
     =>
@@ -24,8 +26,12 @@
 ;###############################################################################
 ;###########################  MINERALS MODULE  #################################
 ;###############################################################################
+; the minerals module is respondable for storagin the knowledge of the minerals
+; for the expert to search betwen them.
+
 (defmodule MINERALS (export ?ALL))
 
+; template of the mineral
 (deftemplate MINERALS::mineral
     (slot name (type SYMBOL) (default notDefined))
     (multislot color (type SYMBOL) (default notDefined))
@@ -34,8 +40,8 @@
     (multislot diaphaneity (allowed-symbols transparent translucent opaque notDefined) (default notDefined))
     (slot streak (type SYMBOL) (default notDefined))
 )
-;Implementar busqueda por dureza y densidad con cota de error de 0.1
 
+; the minerals
 (deffacts MINERALS::minerals
     (mineral (name emerald) (color green) (hardness 7.5) (density 2.7) (diaphaneity transparent translucent opaque) (streak white))
     (mineral (name diamond) (color yellow brown green blue white colorless) (hardness 10) (density 3.5) (diaphaneity transparent translucent) (streak colorless))
@@ -74,14 +80,21 @@
 ;###############################################################################
 ;#############################  MENU MODULE  ###################################
 ;###############################################################################
+; the menu module is responsable for the user I/O
+
 (defmodule MENU (import MAIN ?ALL) (import MINERALS ?ALL) (export ?ALL))
 
+; the response of the user when is addign a restriction will be stored here
 (defglobal ?*response* = nil)
 
+; adds the target mineral, where all the restrictions will be stored
 (deffacts MINERALS::addTarget
     (mineral (name target)) 
 )
 
+; this function prints a menu acording to his parameter:
+; 1 is for the main menu and 2 is for the restriction menu, 0 is exit, so it is
+; not contemplated
 (deffunction MENU::printMenu (?option)
     (printout t crlf)
 
@@ -101,6 +114,8 @@
     (printout t "your option: ")
 )
 
+; this function will print a menu for adding a restriction to the given 
+; parameter
 (deffunction MENU::printMenuRestriction (?option)
     (printout t crlf)
 
@@ -129,6 +144,7 @@
 
 ;###############################################################################
 
+; this function checks if the parameter is a valid color
 (deffunction isColor(?color)
     (if (eq ?color black) then (return true))
     (if (eq ?color blue) then (return true))
@@ -145,6 +161,7 @@
 
 ;###############################################################################
 
+; validates and return a valid color from the user
 (deffunction MENU::getColorFromUser ()
     (bind ?*response* (read))
     (if (neq (isColor ?*response*) true) then
@@ -154,6 +171,7 @@
     (return  ?*response*)
 )
 
+; validates and return a valid density from the user
 (deffunction MENU::getDensityFromUser ()
     (bind ?*response* (read))
     (if (< 0 ?*response*) then
@@ -163,6 +181,7 @@
     (return (getDensityFromUser))
 )
 
+; validates and return a valid hardness from the user
 (deffunction MENU::getHardnessFromUser ()
     (bind ?*response* (read))
     (if (and
@@ -175,6 +194,7 @@
     (return (getHardnessFromUser))
 )
 
+; validates and return a valid diaphaneity from the user
 (deffunction MENU::getDiaphaneityFromUser ()
     (bind ?*response* (read))
     (if (and
@@ -189,7 +209,7 @@
     (return (getDiaphaneityFromUser))
 )
 
-
+; validates and return a valid streak from the user
 (deffunction MENU::getStreakFromUser ()
     (bind ?*response* (read))
     (if (neq (isColor ?*response*) true) then
@@ -202,7 +222,7 @@
 
 ;###############################################################################
 
-
+; prints the main menu and asserts the chosen option as a fact
 (defrule MENU::mainMenu
     ?f1<-(menu mainMenu)
     =>
@@ -214,6 +234,7 @@
     )
 )
 
+; if the exit option is selected, halt the program
 (defrule MENU::exit
     ?f1<-(menu option 0)
     =>
@@ -221,7 +242,8 @@
     (exit)
 )
 
-
+; prints the menu for adding a restriction and asserts a fact with the chosen
+; restriction
 (defrule MENU::menuAddRestriction
     ?f1<-(menu option 1)
     =>
@@ -232,7 +254,7 @@
     )
 )
 
-
+; focus the expert to make an diagnostic with the current restrictions
 (defrule MENU::menuExpert
     ?f1<-(menu option 2)
     =>
@@ -244,58 +266,72 @@
 
 ;###############################################################################
 
-
+; add a restriction to the color of the mineral
 (defrule MENU::AddRestrictionColor
     ?f1<-(menu AddRestriction 1)
     ?target<-(mineral (name target))
     =>
     (retract ?f1)
+    ; prints the menu for adding a restriction to the color
     (printMenuRestriction color)
+    ; modify the target with the color chosen by the user
     (modify ?target
         (color (getColorFromUser))
     )
 )
 
+; add a restriction to the hardness of the mineral
 (defrule MENU::AddRestrictionHardness
     ?f1<-(menu AddRestriction 2)
     ?target<-(mineral (name target))
     =>
     (retract ?f1)
+    ; prints the menu for adding a restriction to the hardness
     (printMenuRestriction hardness)
+    ; modify the target with the hardness chosen by the user
     (modify ?target
         (hardness (getHardnessFromUser))
     )
 )
 
+; add a restriction to the density of the mineral
 (defrule MENU::AddRestrictionDensity
     ?f1<-(menu AddRestriction 3)
     ?target<-(mineral (name target))
     =>
     (retract ?f1)
+    ; prints the menu for adding a restriction to the density
     (printMenuRestriction density)
+    ; modify the target with the density chosen by the user
     (modify ?target
         (density (getDensityFromUser))
     )
 )
 
 
+; add a restriction to the diaphaneity of the mineral
 (defrule MENU::AddRestrictionDiaphaneity
     ?f1<-(menu AddRestriction 4)
     ?target<-(mineral (name target))
     =>
     (retract ?f1)
+    ; prints the menu for adding a restriction to the diaphaneity
     (printMenuRestriction diaphaneity)
+    ; modify the target with the diaphaneity chosen by the user
     (modify ?target
         (diaphaneity (getDiaphaneityFromUser))
     )
 )
 
+; add a restriction to the streak of the mineral
 (defrule MENU::AddRestrictionStreak
     ?f1<-(menu AddRestriction 5)
     ?target<-(mineral (name target))
     =>
     (retract ?f1)
+    ; prints the menu for adding a restriction to the streak
     (printMenuRestriction streak)
+    ; modify the target with the streak chosen by the user
     (modify ?target
         (streak (getStreakFromUser))
     )
@@ -308,11 +344,13 @@
 ;###############################################################################
 (defmodule EXPERT (import MINERALS ?ALL) (export ?ALL))
 
+; error for comparing the hardness and density
 (defglobal ?*hardnessError* = 0.3)
 (defglobal ?*densityError* = 0.1)
 
 ;###############################################################################
 
+; recursive funciton that checks if an element is in a vector
 (deffunction EXPERT::isInArray (?element $?vector)
     (if (eq 0 (length$ $?vector)) then
         (return false)
@@ -363,6 +401,7 @@
 )
 
 ;###############################################################################
+
 
 (defrule EXPERT::showFilteringBy
     ?target<-(mineral
