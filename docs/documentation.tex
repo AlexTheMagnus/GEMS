@@ -7,6 +7,7 @@
 \usepackage{tikz}     % graphs!
 \usepackage{listings} % code!
 \usepackage{multirow} % Required for multirows
+\usepackage{multicol}
 \usepackage[spanish, activeacute]{babel} %Definir idioma español
 % \usepackage[margin=3cm]{geometry}
 \usepackage{cite} % para contraer referencias
@@ -45,9 +46,11 @@
 \pagestyle{fancy}
 
 \lhead{GEMS}
-\rfoot{Página \thepage}
+\chead{}
+\rhead{\rightmark}
 \lfoot{Sistemas inteligentes}
 \cfoot{}
+\rfoot{Página \thepage}
 
 \newcommand\tab[1][1cm]{\hspace*{#1}}
 
@@ -65,11 +68,33 @@
 \paragraph{}El problema propone la creación de un \textbf{sistema experto para la clasificación de minerales}. Para esto se seguirán las líneas expuestas a continuación:
 
 \textit{Dadas las características de un mineral (por ejemplo, forma, color, dureza,...), el sistema debe indicar el nombre de dicho mineral.  El número mínimo de características a considerar debe ser 5, y el número de minerales diferentes que tenga predefinido el sistema debe ser de 25.}
-\pagebreak
 
 
 \section{Análisis del problema}
-\paragraph{Cualquier} otro detalle de análisis, diseño e implementación (poniendo énfasis en las técnicas usadas para controlar el razonamiento) que pueda ser de interés.
+El problema presentado requiere de un sistema que sea capaz de ofrecer un sistema de clasificación de minerales a través de una interfaz simple e intuitiva en la que el usuario pueda añadir las características del mineral que se desea identificar, y el sistema experto \textit{GEMS} deberá de mostrar los minerales cuyas características se asemejan a las introducidas.
+
+\pagebreak
+    
+\section{El sistema GEMS}
+\textit{GEMS} se organiza en 3 módulos: \textit{Minerales}, \textit{Menú} y \textit{Experto}, los cuales son coordinados desde el modulo \textit{principal}
+
+Cada uno cumple una única función en el sistema:
+
+\subsection{Modulo Minerales}
+Fuente de información de \textit{GEMS}, el cual contiene la plantilla para representar la información sobre los minerales y la propia información sobre estos.
+
+\subsection{Modulo Menú}
+Unicamente responsable de la interacción con el usuario y de la validación de los datos introducidos por el mismo.
+
+\subsection{Modulo Experto}
+El motor de razonamiento, contiene el conocimiento para buscar entre todos los minerales del \textit{modulo de Minerales} 
+
+
+ 
+
+
+
+
 \pagebreak
 
 
@@ -117,7 +142,7 @@ Al igual que en el apartado anterior, si se quisiera cambiar el valor del filtro
 
 \chapter{3. Specify density}
 \setlength{\parskip}{0.5em}
-\paragraph{}Desde esta opción podremos escoger la densidad medida en \textit{g/cm³} por la que se desean filtrar los minerales. Por defecto, se mostrarán todos los minerales con un error de 0.1 sobre la densidad introducida por el usuario. Esto se define en el código de \textit{GEMS} a través de la macro \textit{densityError}.
+\paragraph{}Desde esta opción podremos escoger la densidad medida en \textit{$g/cm^3$} por la que se desean filtrar los minerales. Por defecto, se mostrarán todos los minerales con un error de 0.1 sobre la densidad introducida por el usuario. Esto se define en el código de \textit{GEMS} a través de la macro \textit{densityError}.
 
 \textit{GEMS} aceptará como valor válido para esta propiedad cualquiera número positivo.
 \setlength{\parskip}{1em}\\
@@ -142,13 +167,208 @@ En caso de introducir uno que no esté en este rango \textit{GEMS} se encargará
 \textbf{\chapter{0. Exit}}
 \paragraph{}Cierra \textit{GEMS} y \textit{CLIPS} volviendo a la terminal del sistema.
 
-\subsection{Base de datos de GEMS}
-
-
 \pagebreak
+\subsection{Base de datos de GEMS}
+La base de datos de \textit{GEMS} mantiene ciertas características sobre los minerales, estas caracteristicas son:
+\begin{multicols}{3}
+    \begin{itemize}
+        \item nombre
+        \item color
+        \item dureza
+        \item densidad
+        \item transparencia
+        \item raya
+    \end{itemize}
+\end{multicols}
+
+
+\paragraph{\textit{GEMS}} contiene los siguientes minerales:
+\hspace{-1.2cm}
+\begin{tabular}{|c|l|l|}
+    \hline
+    Mineral & Propiedad & Valor \\ \hline
+    \multirow{5}{*}{emerald} 
+        & Color &  green \\
+        & Dureza &  7.5 \\
+        & Densidad &  2.7 \\
+        & Transparencia & transparent translucent opaque\\
+        & Raya &  white\\\hline
+    \multirow{5}{*}{diamond} 
+        & Color &  yellow brown green blue white colorless \\
+        & Dureza &  10 \\
+        & Densidad &  3.5 \\
+        & Transparencia &  transparent translucent \\
+        & Raya &  \\\hline
+    \multirow{5}{*}{quartz} 
+        & Color & white pink black colorless red green blue violet \\
+        & Dureza & 7 \\
+        & Densidad & 2.65 \\
+        & Transparencia & transparent translucent opaque \\
+        & Raya & white \\ \hline
+    \multirow{5}{*}{tourmaline} 
+        & Color & red pink yellow brown green blue white black colorless \\
+        & Dureza & 7 \\
+        & Densidad & 3.1 \\
+        & Transparencia & translucent opaque \\
+        & Raya & white \\ \hline
+    \multirow{5}{*}{topaz} 
+        & Color & red pink yellow brown blue violet white colorless \\
+        & Dureza & 8 \\
+        & Densidad & 3.5 \\
+        & Transparencia & transparent \\
+        & Raya & white \\ \hline
+    \multirow{5}{*}{zircon} 
+        & Color & yellow brown green violet white colorless \\
+        & Dureza & 7 \\
+        & Densidad & 4.7 \\
+        & Transparencia & transparent translucent opaque \\
+        & Raya & white \\ \hline
+    
+\end{tabular}
+        
+\hspace{-1.5cm}
+\begin{tabular}{|c|l|l|}
+    \hline
+    Mineral & Propiedad & Valor \\ \hline
+    \multirow{5}{*}{jade} 
+        & Color & red pink yellow brown green blue violet white black colorless \\
+        & Dureza & 7 \\
+        & Densidad & 3.3 \\
+        & Transparencia & translucent opaque \\
+        & Raya & white \\ \hline
+    \multirow{5}{*}{opal} 
+        & Color & red pink yellow brown white black colorless \\
+        & Dureza & 6 \\
+        & Densidad & 2.5 \\
+        & Transparencia & transparent translucent opaque \\
+        & Raya & white \\ \hline
+    \multirow{5}{*}{turquoise} 
+        & Color & blue \\
+        & Dureza & 5.5 \\
+        & Densidad & 2.5 \\
+        & Transparencia & transparent translucent opaque \\
+        & Raya & white \\ \hline
+    \multirow{5}{*}{amethyst} 
+        & Color & violet \\
+        & Dureza & 7 \\
+        & Densidad & 2.66 \\
+        & Transparencia & transparent translucent \\
+        & Raya & white \\ \hline
+    \multirow{5}{*}{sapphire} 
+        & Color & blue \\
+        & Dureza & 9 \\
+        & Densidad & 3.98 \\
+        & Transparencia & transparent translucent opaque \\
+        & Raya & white \\ \hline
+    \multirow{5}{*}{ruby} 
+        & Color & red pink \\
+        & Dureza & 9 \\
+        & Densidad & 4.02 \\
+        & Transparencia & transparent translucent \\
+        & Raya & white \\ \hline
+    \multirow{5}{*}{apatite} 
+        & Color & white yellow green red blue \\
+        & Dureza & 5 \\
+        & Densidad & 3.19 \\
+        & Transparencia & transparent translucent \\
+        & Raya & white \\ \hline
+    \multirow{5}{*}{lazulite} 
+        & Color & blue green \\
+        & Dureza & 5.75 \\
+        & Densidad & 3.1 \\
+        & Transparencia & translucent opaque \\
+        & Raya & white \\ \hline
+    \multirow{5}{*}{azurite} 
+        & Color & blue \\
+        & Dureza & 3.75 \\
+        & Densidad & 3.83 \\
+        & Transparencia & transparent translucent \\
+        & Raya & blue \\ \hline
+\end{tabular}
+        
+\hspace{-1.0cm}
+\begin{tabular}{|c|l|l|}
+    \hline
+    Mineral & Propiedad & Valor \\ \hline
+    \multirow{5}{*}{malachite} 
+        & Color & green \\
+        & Dureza & 7.5 \\
+        & Densidad & 3.8 \\
+        & Transparencia & translucent opaque \\
+        & Raya & green \\ \hline
+    \multirow{5}{*}{pyrite} 
+        & Color & yellow brown \\
+        & Dureza & 6.25 \\
+        & Densidad & 4.9 \\
+        & Transparencia & opaque \\
+        & Raya & black \\ \hline
+    \multirow{5}{*}{magnetite} 
+        & Color & black \\
+        & Dureza & 6 \\
+        & Densidad & 5.15 \\
+        & Transparencia & opaque \\
+        & Raya & black \\ \hline
+    \multirow{5}{*}{spinel} 
+        & Color & red pink blue violet green brown black colourless \\
+        & Dureza & 7.8 \\
+        & Densidad & 3.64 \\
+        & Transparencia & transparent translucent opaque \\
+        & Raya & white \\ \hline
+    \multirow{5}{*}{alexandrite} 
+        & Color & blue red green yellow pink violet \\
+        & Dureza & 8.5 \\
+        & Densidad & 3.72 \\
+        & Transparencia & transparent translucent \\
+        & Raya & white \\ \hline
+    \multirow{5}{*}{jasper} 
+        & Color & red brown yellow green \\
+        & Dureza & 7 \\
+        & Densidad & 2.65 \\
+        & Transparencia & opaque \\
+        & Raya & white \\ \hline
+    \multirow{5}{*}{agate} 
+        & Color & white blue red green yellow brown pink violet black \\
+        & Dureza & 6.75 \\
+        & Densidad & 2.62 \\
+        & Transparencia & translucent \\
+        & Raya & white \\ \hline
+    \multirow{5}{*}{kryptonite} 
+        & Color & green \\
+        & Dureza & 10 \\
+        & Densidad & 2.41 \\
+        & Transparencia & transparent \\
+        & Raya & green \\ \hline
+    \multirow{5}{*}{lapislazuli} 
+        & Color & blue violet \\
+        & Dureza & 5.25 \\
+        & Densidad & 2.4 \\
+        & Transparencia & translucent opaque \\
+        & Raya & blue \\ \hline
+\end{tabular}
+        
+\begin{tabular}{|c|l|l|}
+    \hline
+    Mineral & Propiedad & Valor \\ \hline
+    \multirow{5}{*}{peridot} 
+        & Color & green yellow \\
+        & Dureza & 6.75 \\
+        & Densidad & 3.34 \\
+        & Transparencia & transparent translucent \\
+        & Raya & white \\ \hline
+    \multirow{5}{*}{garnet} 
+        & Color & red green yellow black brown \\
+        & Dureza & 7 \\
+        & Densidad & 3.7 \\
+        & Transparencia & transparent translucent \\
+        & Raya & white \\ \hline
+\end{tabular}
+
+
+
+\pagebreak 
 
 \section{Colaboradores}
-\paragraph{}Ambos autores hemos trabajado conjuntamente sobre github, Diego Rodríguez Riera se especializó en el diseño y programación del sistema experto y Manuel Alejandro Luque León en la recolecta de información y creación de la base de datos. Finalmente, ambos trabajamos por igual en la creción de la documentación.
+Ambos autores hemos trabajado conjuntamente sobre github, Diego Rodríguez Riera se especializó en el diseño y programación del sistema experto y Manuel Alejandro Luque León en la recolecta de información y creación de la base de datos. Finalmente, ambos trabajamos por igual en la creción de la documentación.
 \pagebreak
 
 \nocite{*}
